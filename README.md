@@ -284,6 +284,10 @@ npm run watch
 
 MIT License - see LICENSE file for details.
 
+## Documentation
+
+- **[OAuth2 MCP Integration Guide](docs/OAuth2-MCP-Integration.md)** - Detailed technical implementation guide for OAuth2 authentication in MCP servers
+
 ## Links
 
 - [GitHub OAuth Documentation](https://docs.github.com/en/developers/apps/building-oauth-apps)
