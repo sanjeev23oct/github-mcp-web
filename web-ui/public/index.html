@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub MCP Server - OAuth2 Authentication</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z'/></svg>">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                <h1>GitHub MCP Server</h1>
+            </div>
+            <div class="subtitle">OAuth2 Authentication & API Integration</div>
+        </header>
+
+        <main class="main">
+            <!-- Authentication Section -->
+            <section id="auth-section" class="auth-section">
+                <div class="auth-card">
+                    <h2>Connect to GitHub</h2>
+                    <p>Authenticate with your GitHub account to access the GitHub API through the MCP server.</p>
+                    
+                    <div class="scope-selector">
+                        <label for="scopes">Select permissions:</label>
+                        <select id="scopes" multiple>
+                            <option value="repo" selected>Repository access</option>
+                            <option value="user" selected>User information</option>
+                            <option value="admin:org">Organization admin</option>
+                            <option value="admin:repo_hook">Repository hooks</option>
+                            <option value="gist">Gist access</option>
+                            <option value="notifications">Notifications</option>
+                            <option value="user:email">Email addresses</option>
+                            <option value="user:follow">Follow users</option>
+                            <option value="public_repo">Public repositories</option>
+                            <option value="repo_deployment">Deployments</option>
+                            <option value="repo:status">Repository status</option>
+                            <option value="delete_repo">Delete repositories</option>
+                            <option value="write:packages">Package write</option>
+                            <option value="read:packages">Package read</option>
+                            <option value="write:discussion">Discussions write</option>
+                            <option value="read:discussion">Discussions read</option>
+                        </select>
+                    </div>
+
+                    <button id="connect-btn" class="connect-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        Connect to GitHub
+                    </button>
+                    
+                    <div id="error-message" class="error-message" style="display: none;"></div>
+                </div>
+            </section>
+
+            <!-- User Dashboard -->
+            <section id="dashboard-section" class="dashboard-section" style="display: none;">
+                <div class="user-card">
+                    <div class="user-info">
+                        <img id="user-avatar" src="" alt="User Avatar" class="user-avatar">
+                        <div class="user-details">
+                            <h3 id="user-name"></h3>
+                            <p id="user-login"></p>
+                            <p id="user-email"></p>
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <button id="disconnect-btn" class="disconnect-btn">Disconnect</button>
+                        <button id="copy-token-btn" class="copy-token-btn">Copy Access Token</button>
+                    </div>
+                </div>
+
+                <div class="tools-section">
+                    <h3>Available GitHub Tools</h3>
+                    <p>Your MCP server now has access to the following GitHub API tools:</p>
+                    
+                    <div class="tools-grid">
+                        <div class="tool-card">
+                            <h4>Repository Management</h4>
+                            <ul>
+                                <li>List repositories</li>
+                                <li>Create repositories</li>
+                                <li>Get repository details</li>
+                                <li>Manage branches</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>Issue Management</h4>
+                            <ul>
+                                <li>List and create issues</li>
+                                <li>Update issue status</li>
+                                <li>Assign users to issues</li>
+                                <li>Manage labels</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>Pull Requests</h4>
+                            <ul>
+                                <li>List pull requests</li>
+                                <li>Create pull requests</li>
+                                <li>Review and merge PRs</li>
+                                <li>Manage PR status</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>File Operations</h4>
+                            <ul>
+                                <li>Read file contents</li>
+                                <li>Create new files</li>
+                                <li>Browse directories</li>
+                                <li>Commit changes</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>GitHub Actions</h4>
+                            <ul>
+                                <li>List workflows</li>
+                                <li>View workflow runs</li>
+                                <li>Monitor build status</li>
+                                <li>Access job logs</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4>User & Organization</h4>
+                            <ul>
+                                <li>Get user information</li>
+                                <li>List followers/following</li>
+                                <li>Organization access</li>
+                                <li>Team management</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-tester">
+                    <h3>Test GitHub API</h3>
+                    <div class="api-test-form">
+                        <input type="text" id="api-endpoint" placeholder="Enter API endpoint (e.g., user/repos)" />
+                        <button id="test-api-btn">Test API Call</button>
+                    </div>
+                    <div id="api-response" class="api-response" style="display: none;"></div>
+                </div>
+
+                <div class="mcp-integration">
+                    <h3>MCP Server Integration</h3>
+                    <p>To use the GitHub MCP server, add the following configuration to your MCP settings:</p>
+                    <div class="config-example">
+                        <pre id="mcp-config"></pre>
+                        <button id="copy-config-btn" class="copy-btn">Copy Configuration</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 GitHub MCP Server. Secure OAuth2 authentication for GitHub API integration.</p>
+            <p>
+                <a href="https://docs.github.com/en/developers/apps/building-oauth-apps" target="_blank">GitHub OAuth Documentation</a> |
+                <a href="https://docs.github.com/en/rest" target="_blank">GitHub API Documentation</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,612 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    line-height: 1.6;
+    color: #24292f;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: white;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.logo svg {
+    color: #ffffff;
+}
+
+.logo h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    font-weight: 300;
+}
+
+/* Main content */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Authentication section */
+.auth-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.auth-card {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.auth-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #24292f;
+}
+
+.auth-card p {
+    color: #656d76;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+}
+
+.scope-selector {
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.scope-selector label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #24292f;
+}
+
+.scope-selector select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #d0d7de;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    color: #24292f;
+    min-height: 120px;
+}
+
+.scope-selector select:focus {
+    outline: none;
+    border-color: #0969da;
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+}
+
+.connect-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #238636;
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.connect-btn:hover {
+    background: #2ea043;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
+}
+
+.connect-btn:active {
+    transform: translateY(0);
+}
+
+.error-message {
+    background: #ffebe9;
+    color: #cf222e;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-top: 20px;
+    border: 1px solid #ffcdd2;
+}
+
+/* Dashboard section */
+.dashboard-section {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.user-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #d0d7de;
+}
+
+.user-details h3 {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    color: #24292f;
+}
+
+.user-details p {
+    color: #656d76;
+    margin: 2px 0;
+}
+
+.user-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.disconnect-btn, .copy-token-btn, .copy-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.disconnect-btn {
+    background: #da3633;
+    color: white;
+}
+
+.disconnect-btn:hover {
+    background: #b62324;
+}
+
+.copy-token-btn, .copy-btn {
+    background: #0969da;
+    color: white;
+}
+
+.copy-token-btn:hover, .copy-btn:hover {
+    background: #0550ae;
+}
+
+/* Tools section */
+.tools-section {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tools-section h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #24292f;
+}
+
+.tools-section > p {
+    color: #656d76;
+    margin-bottom: 25px;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.tool-card {
+    background: #f6f8fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #d0d7de;
+}
+
+.tool-card h4 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #24292f;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tool-card ul {
+    list-style: none;
+}
+
+.tool-card li {
+    padding: 5px 0;
+    color: #656d76;
+    position: relative;
+    padding-left: 20px;
+}
+
+.tool-card li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #238636;
+    font-weight: bold;
+}
+
+/* API Tester */
+.api-tester {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.api-tester h3 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #24292f;
+}
+
+.api-test-form {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.api-test-form input {
+    flex: 1;
+    min-width: 250px;
+    padding: 12px;
+    border: 2px solid #d0d7de;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.api-test-form input:focus {
+    outline: none;
+    border-color: #0969da;
+}
+
+#test-api-btn {
+    padding: 12px 24px;
+    background: #0969da;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#test-api-btn:hover {
+    background: #0550ae;
+}
+
+.api-response {
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.api-response pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* MCP Integration */
+.mcp-integration {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mcp-integration h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #24292f;
+}
+
+.mcp-integration p {
+    color: #656d76;
+    margin-bottom: 20px;
+}
+
+.config-example {
+    position: relative;
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.config-example pre {
+    padding: 20px;
+    margin: 0;
+    overflow-x: auto;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #24292f;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Footer */
+.footer {
+    margin-top: 40px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+}
+
+.footer p {
+    margin: 10px 0;
+}
+
+.footer a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .logo h1 {
+        font-size: 2rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .auth-card {
+        padding: 30px 20px;
+    }
+    
+    .user-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .user-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .tools-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .api-test-form {
+        flex-direction: column;
+    }
+    
+    .api-test-form input {
+        min-width: auto;
+    }
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    border-top-color: #0969da;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Success states */
+.success {
+    background: #dafbe1;
+    color: #137333;
+    padding: 12px 16px;
+    border-radius: 6px;
+    border: 1px solid #a2ddb0;
+    margin: 10px 0;
+}
+
+/* Focus states for accessibility */
+button:focus,
+input:focus,
+select:focus {
+    outline: 2px solid #0969da;
+    outline-offset: 2px;
+}
+
+/* Animation for smooth transitions */
+.auth-section,
+.dashboard-section {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Setup instructions */
+.setup-steps {
+    text-align: left;
+    margin: 25px 0;
+}
+
+.setup-steps h3 {
+    color: #24292f;
+    margin-bottom: 15px;
+}
+
+.setup-steps ol {
+    margin: 15px 0;
+    padding-left: 20px;
+}
+
+.setup-steps li {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+.setup-steps ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.setup-steps ul li {
+    margin: 5px 0;
+}
+
+.setup-steps code {
+    background: #f6f8fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 13px;
+}
+
+.setup-help {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #d0d7de;
+}
+
+.setup-help h3 {
+    color: #24292f;
+    margin-bottom: 10px;
+}
+
+.code-example {
+    position: relative;
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    margin: 15px 0;
+    overflow: hidden;
+}
+
+.code-example pre {
+    padding: 15px;
+    margin: 0;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #24292f;
+    overflow-x: auto;
+}
+
+.code-example .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    font-size: 11px;
+    background: #0969da;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.code-example .copy-btn:hover {
+    background: #0550ae;
+}

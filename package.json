@@ -1,0 +1,42 @@
+{
+  "name": "github-mcp-oauth-server",
+  "version": "1.0.0",
+  "description": "GitHub MCP Server with OAuth2 Authentication and Web UI",
+  "type": "module",
+  "main": "setup.js",
+  "scripts": {
+    "setup": "node setup.js",
+    "build": "cd github-oauth-server && npm run build",
+    "start": "cd web-ui && npm start",
+    "dev": "cd web-ui && npm run dev",
+    "install-deps": "cd github-oauth-server && npm install && cd ../web-ui && npm install",
+    "test": "cd web-ui && node server.js --test"
+  },
+  "keywords": [
+    "github",
+    "oauth2",
+    "mcp",
+    "model-context-protocol",
+    "api",
+    "authentication",
+    "web-ui",
+    "typescript",
+    "nodejs"
+  ],
+  "author": "GitHub MCP Server",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/github-mcp-oauth-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/github-mcp-oauth-server/issues"
+  },
+  "homepage": "https://github.com/your-username/github-mcp-oauth-server#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
