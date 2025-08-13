@@ -610,3 +610,167 @@ select:focus {
 .code-example .copy-btn:hover {
     background: #0550ae;
 }
+
+/* Postman-style Tool Testing Interface */
+.postman-interface {
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    background: #f6f8fa;
+}
+
+.tool-selector {
+    margin-bottom: 20px;
+}
+
+.tool-selector label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #24292f;
+}
+
+.tool-selector select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #d0d7de;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+}
+
+.tool-selector select:focus {
+    outline: none;
+    border-color: #0969da;
+}
+
+.parameters-section {
+    margin: 20px 0;
+    padding: 15px;
+    background: white;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+}
+
+.parameters-section h4 {
+    margin: 0 0 15px 0;
+    color: #24292f;
+}
+
+.parameter-input {
+    margin-bottom: 15px;
+}
+
+.parameter-input label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #24292f;
+}
+
+.parameter-input input,
+.parameter-input select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.parameter-input input:focus,
+.parameter-input select:focus {
+    outline: none;
+    border-color: #0969da;
+    box-shadow: 0 0 0 2px rgba(9, 105, 218, 0.1);
+}
+
+.parameter-input input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+}
+
+.test-actions {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    align-items: center;
+}
+
+.test-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.test-actions button:disabled {
+    background: #d0d7de;
+    color: #656d76;
+    cursor: not-allowed;
+}
+
+.test-actions button:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.response-meta {
+    background: #f6f8fa;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-family: monospace;
+    font-size: 12px;
+    border: 1px solid #d0d7de;
+}
+
+.response-meta strong {
+    color: #24292f;
+}
+
+/* Execute and Clear button styles */
+.execute-btn {
+    background: #238636 !important;
+    color: white !important;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.execute-btn:disabled {
+    background: #d0d7de !important;
+    color: #656d76 !important;
+    cursor: not-allowed;
+}
+
+.execute-btn:not(:disabled):hover {
+    background: #2ea043 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
+}
+
+.clear-btn {
+    background: #656d76 !important;
+    color: white !important;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.clear-btn:hover {
+    background: #24292f !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}

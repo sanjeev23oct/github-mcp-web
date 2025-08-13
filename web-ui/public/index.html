@@ -144,7 +144,42 @@
                 </div>
 
                 <div class="api-tester">
-                    <h3>Test GitHub API</h3>
+                    <h3>🧪 Test MCP Tools</h3>
+                    <p>Test individual GitHub MCP tools with interactive parameter input:</p>
+                    <div id="mcp-tools-list" class="tools-grid">
+                        <!-- MCP tools will be loaded here dynamically -->
+                    </div>
+                </div>
+
+                <div class="api-tester">
+                    <h3>🔧 Advanced Tool Testing (Postman-style)</h3>
+                    <div class="postman-interface">
+                        <div class="tool-selector">
+                            <label for="tool-select">Select Tool:</label>
+                            <select id="tool-select">
+                                <option value="">Choose a tool...</option>
+                            </select>
+                        </div>
+                        
+                        <div id="tool-parameters" class="parameters-section" style="display: none;">
+                            <h4>Parameters:</h4>
+                            <div id="parameter-inputs"></div>
+                        </div>
+                        
+                        <div class="test-actions">
+                            <button id="execute-tool-btn" class="execute-btn" disabled>🚀 Execute Tool</button>
+                            <button id="clear-response-btn" class="clear-btn">🗑️ Clear Response</button>
+                        </div>
+                        
+                        <div id="tool-response" class="api-response" style="display: none;">
+                            <h4>Response:</h4>
+                            <div id="response-content"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-tester">
+                    <h3>🔧 Raw GitHub API Test</h3>
                     <div class="api-test-form">
                         <input type="text" id="api-endpoint" placeholder="Enter API endpoint (e.g., user/repos)" />
                         <button id="test-api-btn">Test API Call</button>

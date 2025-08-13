@@ -178,6 +178,249 @@ app.post('/api/github/:endpoint', async (req, res) => {
   }
 });
 
+// MCP HTTP Protocol Implementation
+// Authentication middleware for MCP endpoints
+const authenticateMCP = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+  
+  req.token = token;
+  next();
+};
+
+// MCP Tools List - Returns available GitHub tools
+app.post('/mcp/tools/list', authenticateMCP, (req, res) => {
+  const tools = [
+    {
+      name: "get_user",
+      description: "Get the authenticated user's GitHub profile information",
+      inputSchema: {
+        type: "object",
+        properties: {},
+        required: []
+      }
+    },
+    {
+      name: "list_repositories",
+      description: "List repositories for the authenticated user",
+      inputSchema: {
+        type: "object",
+        properties: {
+          type: { type: "string", enum: ["all", "owner", "member"], default: "owner" },
+          sort: { type: "string", enum: ["created", "updated", "pushed", "full_name"], default: "updated" },
+          per_page: { type: "number", minimum: 1, maximum: 100, default: 30 }
+        },
+        required: []
+      }
+    },
+    {
+      name: "get_repository",
+      description: "Get detailed information about a specific repository",
+      inputSchema: {
+        type: "object",
+        properties: {
+          owner: { type: "string", description: "Repository owner" },
+          repo: { type: "string", description: "Repository name" }
+        },
+        required: ["owner", "repo"]
+      }
+    },
+    {
+      name: "list_issues",
+      description: "List issues for a repository",
+      inputSchema: {
+        type: "object",
+        properties: {
+          owner: { type: "string", description: "Repository owner" },
+          repo: { type: "string", description: "Repository name" },
+          state: { type: "string", enum: ["open", "closed", "all"], default: "open" },
+          per_page: { type: "number", minimum: 1, maximum: 100, default: 30 }
+        },
+        required: ["owner", "repo"]
+      }
+    },
+    {
+      name: "create_issue",
+      description: "Create a new issue in a repository",
+      inputSchema: {
+        type: "object",
+        properties: {
+          owner: { type: "string", description: "Repository owner" },
+          repo: { type: "string", description: "Repository name" },
+          title: { type: "string", description: "Issue title" },
+          body: { type: "string", description: "Issue body/description" },
+          labels: { type: "array", items: { type: "string" }, description: "Issue labels" }
+        },
+        required: ["owner", "repo", "title"]
+      }
+    },
+    {
+      name: "list_pull_requests",
+      description: "List pull requests for a repository",
+      inputSchema: {
+        type: "object",
+        properties: {
+          owner: { type: "string", description: "Repository owner" },
+          repo: { type: "string", description: "Repository name" },
+          state: { type: "string", enum: ["open", "closed", "all"], default: "open" },
+          per_page: { type: "number", minimum: 1, maximum: 100, default: 30 }
+        },
+        required: ["owner", "repo"]
+      }
+    },
+    {
+      name: "get_file_contents",
+      description: "Get the contents of a file from a repository",
+      inputSchema: {
+        type: "object",
+        properties: {
+          owner: { type: "string", description: "Repository owner" },
+          repo: { type: "string", description: "Repository name" },
+          path: { type: "string", description: "File path" },
+          ref: { type: "string", description: "Branch, tag, or commit SHA" }
+        },
+        required: ["owner", "repo", "path"]
+      }
+    },
+    {
+      name: "list_commits",
+      description: "List commits for a repository",
+      inputSchema: {
+        type: "object",
+        properties: {
+          owner: { type: "string", description: "Repository owner" },
+          repo: { type: "string", description: "Repository name" },
+          sha: { type: "string", description: "Branch or commit SHA" },
+          per_page: { type: "number", minimum: 1, maximum: 100, default: 30 }
+        },
+        required: ["owner", "repo"]
+      }
+    }
+  ];
+  
+  res.json({ tools });
+});
+
+// MCP Tool Call - Execute a specific tool
+app.post('/mcp/tools/call', authenticateMCP, async (req, res) => {
+  const { name, arguments: args } = req.body;
+  
+  if (!name) {
+    return res.status(400).json({ error: 'Tool name is required' });
+  }
+  
+  try {
+    let result;
+    
+    switch (name) {
+      case 'get_user':
+        result = await callGitHubAPI(req.token, 'user');
+        break;
+        
+      case 'list_repositories':
+        const repoParams = new URLSearchParams();
+        if (args?.type) repoParams.append('type', args.type);
+        if (args?.sort) repoParams.append('sort', args.sort);
+        if (args?.per_page) repoParams.append('per_page', args.per_page);
+        result = await callGitHubAPI(req.token, `user/repos?${repoParams}`);
+        break;
+        
+      case 'get_repository':
+        if (!args?.owner || !args?.repo) {
+          return res.status(400).json({ error: 'owner and repo are required' });
+        }
+        result = await callGitHubAPI(req.token, `repos/${args.owner}/${args.repo}`);
+        break;
+        
+      case 'list_issues':
+        if (!args?.owner || !args?.repo) {
+          return res.status(400).json({ error: 'owner and repo are required' });
+        }
+        const issueParams = new URLSearchParams();
+        if (args?.state) issueParams.append('state', args.state);
+        if (args?.per_page) issueParams.append('per_page', args.per_page);
+        result = await callGitHubAPI(req.token, `repos/${args.owner}/${args.repo}/issues?${issueParams}`);
+        break;
+        
+      case 'create_issue':
+        if (!args?.owner || !args?.repo || !args?.title) {
+          return res.status(400).json({ error: 'owner, repo, and title are required' });
+        }
+        result = await callGitHubAPI(req.token, `repos/${args.owner}/${args.repo}/issues`, 'POST', {
+          title: args.title,
+          body: args.body || '',
+          labels: args.labels || []
+        });
+        break;
+        
+      case 'list_pull_requests':
+        if (!args?.owner || !args?.repo) {
+          return res.status(400).json({ error: 'owner and repo are required' });
+        }
+        const prParams = new URLSearchParams();
+        if (args?.state) prParams.append('state', args.state);
+        if (args?.per_page) prParams.append('per_page', args.per_page);
+        result = await callGitHubAPI(req.token, `repos/${args.owner}/${args.repo}/pulls?${prParams}`);
+        break;
+        
+      case 'get_file_contents':
+        if (!args?.owner || !args?.repo || !args?.path) {
+          return res.status(400).json({ error: 'owner, repo, and path are required' });
+        }
+        const fileParams = new URLSearchParams();
+        if (args?.ref) fileParams.append('ref', args.ref);
+        result = await callGitHubAPI(req.token, `repos/${args.owner}/${args.repo}/contents/${args.path}?${fileParams}`);
+        break;
+        
+      case 'list_commits':
+        if (!args?.owner || !args?.repo) {
+          return res.status(400).json({ error: 'owner and repo are required' });
+        }
+        const commitParams = new URLSearchParams();
+        if (args?.sha) commitParams.append('sha', args.sha);
+        if (args?.per_page) commitParams.append('per_page', args.per_page);
+        result = await callGitHubAPI(req.token, `repos/${args.owner}/${args.repo}/commits?${commitParams}`);
+        break;
+        
+      default:
+        return res.status(400).json({ error: `Unknown tool: ${name}` });
+    }
+    
+    res.json({ content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] });
+    
+  } catch (error) {
+    console.error('Tool execution error:', error);
+    res.status(500).json({ 
+      error: 'Tool execution failed',
+      details: error.message 
+    });
+  }
+});
+
+// Helper function to call GitHub API
+async function callGitHubAPI(token, endpoint, method = 'GET', data = null) {
+  const config = {
+    method,
+    url: `https://api.github.com/${endpoint}`,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github+json',
+      'User-Agent': 'GitHub-MCP-Server'
+    }
+  };
+  
+  if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+    config.data = data;
+  }
+  
+  const response = await axios(config);
+  return response.data;
+}
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 

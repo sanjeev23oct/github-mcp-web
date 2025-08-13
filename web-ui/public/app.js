@@ -86,6 +86,8 @@ class GitHubOAuthApp {
             try {
                 const user = JSON.parse(storedUser);
                 this.handleAuthSuccess(storedToken, user);
+                // Load MCP tools if user is already authenticated
+                setTimeout(() => window.loadMCPTools(), 1000);
             } catch (error) {
                 console.error('Error loading stored auth:', error);
                 this.clearStoredAuth();
@@ -276,25 +278,41 @@ REDIRECT_URI=http://localhost:3000/auth/callback</pre>
     }
 
     updateMCPConfig() {
-        const projectPath = window.location.origin.includes('localhost') 
-            ? 'd:/repos-personal/repos/mcp-github-web/github-oauth-server'
-            : '/path/to/github-oauth-server';
-            
-        const config = {
+        const baseUrl = window.location.origin;
+        
+        const httpConfig = {
             "mcpServers": {
-                "github-oauth": {
-                    "command": "node",
-                    "args": [`${projectPath}/build/index.js`],
+                "github-mcp-http": {
+                    "command": "npx",
+                    "args": ["-y", "@modelcontextprotocol/server-fetch"],
                     "env": {
-                        "GITHUB_CLIENT_ID": "your-github-client-id",
-                        "GITHUB_CLIENT_SECRET": "your-github-client-secret",
-                        "GITHUB_ACCESS_TOKEN": this.accessToken
+                        "FETCH_BASE_URL": `${baseUrl}/mcp`,
+                        "FETCH_DEFAULT_HEADERS": JSON.stringify({
+                            "Authorization": `Bearer ${this.accessToken}`,
+                            "Content-Type": "application/json"
+                        })
                     }
                 }
             }
         };
 
-        document.getElementById('mcp-config').textContent = JSON.stringify(config, null, 2);
+        const configText = `<!-- HTTP MCP Configuration -->
+${JSON.stringify(httpConfig, null, 2)}
+
+<!-- Available Endpoints -->
+Tools List: POST ${baseUrl}/mcp/tools/list
+Tool Call:  POST ${baseUrl}/mcp/tools/call
+
+<!-- Example Tool Call -->
+curl -X POST ${baseUrl}/mcp/tools/call \\
+  -H "Authorization: Bearer ${this.accessToken}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name": "get_user",
+    "arguments": {}
+  }'`;
+
+        document.getElementById('mcp-config').textContent = configText;
     }
 
     async copyToClipboard(text, successMessage = 'Copied to clipboard!') {
@@ -401,4 +419,324 @@ window.addEventListener('beforeunload', (event) => {
         event.preventDefault();
         event.returnValue = 'You are currently authenticated with GitHub. Are you sure you want to leave?';
     }
+});
+
+// MCP Tool Testing functionality
+window.testMCPTool = async function(toolName, inputSchema) {
+    const app = window.githubApp;
+    if (!app || !app.accessToken) {
+        alert('Please authenticate first');
+        return;
+    }
+
+    const args = {};
+    const required = inputSchema.required || [];
+    
+    // Collect arguments based on schema
+    for (const [prop, config] of Object.entries(inputSchema.properties || {})) {
+        let value;
+        if (config.type === 'string') {
+            if (config.enum) {
+                value = prompt(`${prop} (${config.enum.join(', ')}):`, config.default || '');
+            } else {
+                value = prompt(`${prop}:`, config.default || '');
+            }
+        } else if (config.type === 'number') {
+            value = prompt(`${prop} (number):`, config.default || '');
+            if (value) value = parseInt(value);
+        } else if (config.type === 'array') {
+            const input = prompt(`${prop} (comma-separated):`, '');
+            value = input ? input.split(',').map(s => s.trim()) : [];
+        } else {
+            value = prompt(`${prop}:`, config.default || '');
+        }
+        
+        if (value !== null && value !== '') {
+            args[prop] = value;
+        } else if (required.includes(prop)) {
+            alert(`${prop} is required`);
+            return;
+        }
+    }
+
+    try {
+        const response = await fetch('/mcp/tools/call', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${app.accessToken}`
+            },
+            body: JSON.stringify({
+                name: toolName,
+                arguments: args
+            })
+        });
+
+        const result = await response.json();
+        
+        // Show result in a modal or new window
+        const resultWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes');
+        resultWindow.document.write(`
+            <html>
+                <head>
+                    <title>MCP Tool Result: ${toolName}</title>
+                    <style>
+                        body { font-family: monospace; padding: 20px; }
+                        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow: auto; }
+                        .error { color: red; }
+                        .success { color: green; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Tool: ${toolName}</h2>
+                    <h3>Arguments:</h3>
+                    <pre>${JSON.stringify(args, null, 2)}</pre>
+                    <h3>Result:</h3>
+                    <pre class="${response.ok ? 'success' : 'error'}">${JSON.stringify(result, null, 2)}</pre>
+                </body>
+            </html>
+        `);
+    } catch (error) {
+        alert(`Error testing tool: ${error.message}`);
+    }
+};
+
+// Add MCP tools to dashboard when authenticated
+window.loadMCPTools = async function() {
+    const app = window.githubApp;
+    if (!app || !app.accessToken) return;
+
+    try {
+        const response = await fetch('/mcp/tools/list', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${app.accessToken}`
+            }
+        });
+
+        const data = await response.json();
+        const toolsContainer = document.getElementById('mcp-tools-list');
+        
+        if (toolsContainer && data.tools) {
+            toolsContainer.innerHTML = data.tools.map(tool => `
+                <div class="tool-card">
+                    <h4>${tool.name}</h4>
+                    <p>${tool.description}</p>
+                    <button onclick="testMCPTool('${tool.name}', ${JSON.stringify(tool.inputSchema).replace(/"/g, '&quot;')})" 
+                            class="copy-btn">Test Tool</button>
+                </div>
+            `).join('');
+            
+            // Also populate the advanced tool selector
+            if (window.populateToolSelector) {
+                window.populateToolSelector(data.tools);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading MCP tools:', error);
+    }
+};
+
+// Enhanced Tool Testing Interface (Postman-style)
+window.initAdvancedToolTesting = function() {
+    const toolSelect = document.getElementById('tool-select');
+    const toolParameters = document.getElementById('tool-parameters');
+    const parameterInputs = document.getElementById('parameter-inputs');
+    const executeBtn = document.getElementById('execute-tool-btn');
+    const clearBtn = document.getElementById('clear-response-btn');
+    const toolResponse = document.getElementById('tool-response');
+    const responseContent = document.getElementById('response-content');
+    
+    let availableTools = [];
+    let selectedTool = null;
+    
+    // Tool selection handler
+    toolSelect.addEventListener('change', function() {
+        const toolName = this.value;
+        selectedTool = availableTools.find(tool => tool.name === toolName);
+        
+        if (selectedTool) {
+            renderParameterInputs(selectedTool);
+            toolParameters.style.display = 'block';
+            executeBtn.disabled = false;
+        } else {
+            toolParameters.style.display = 'none';
+            executeBtn.disabled = true;
+        }
+    });
+    
+    // Execute tool handler
+    executeBtn.addEventListener('click', async function() {
+        if (!selectedTool) return;
+        
+        const args = collectParameterValues();
+        await executeSelectedTool(selectedTool.name, args);
+    });
+    
+    // Clear response handler
+    clearBtn.addEventListener('click', function() {
+        toolResponse.style.display = 'none';
+        responseContent.innerHTML = '';
+    });
+    
+    function renderParameterInputs(tool) {
+        const schema = tool.inputSchema;
+        const properties = schema.properties || {};
+        const required = schema.required || [];
+        
+        parameterInputs.innerHTML = '';
+        
+        Object.entries(properties).forEach(([paramName, paramConfig]) => {
+            const paramDiv = document.createElement('div');
+            paramDiv.className = 'parameter-input';
+            
+            const label = document.createElement('label');
+            label.textContent = `${paramName}${required.includes(paramName) ? ' *' : ''}:`;
+            label.setAttribute('for', `param-${paramName}`);
+            
+            let input;
+            if (paramConfig.enum) {
+                input = document.createElement('select');
+                input.innerHTML = '<option value="">Select...</option>';
+                paramConfig.enum.forEach(option => {
+                    const optionEl = document.createElement('option');
+                    optionEl.value = option;
+                    optionEl.textContent = option;
+                    input.appendChild(optionEl);
+                });
+            } else if (paramConfig.type === 'number') {
+                input = document.createElement('input');
+                input.type = 'number';
+                if (paramConfig.minimum !== undefined) input.min = paramConfig.minimum;
+                if (paramConfig.maximum !== undefined) input.max = paramConfig.maximum;
+            } else if (paramConfig.type === 'boolean') {
+                input = document.createElement('input');
+                input.type = 'checkbox';
+            } else {
+                input = document.createElement('input');
+                input.type = 'text';
+            }
+            
+            input.id = `param-${paramName}`;
+            input.name = paramName;
+            if (paramConfig.default !== undefined) {
+                if (input.type === 'checkbox') {
+                    input.checked = paramConfig.default;
+                } else {
+                    input.value = paramConfig.default;
+                }
+            }
+            
+            const description = document.createElement('small');
+            description.textContent = paramConfig.description || '';
+            description.style.display = 'block';
+            description.style.color = '#666';
+            description.style.marginTop = '2px';
+            
+            paramDiv.appendChild(label);
+            paramDiv.appendChild(input);
+            if (paramConfig.description) paramDiv.appendChild(description);
+            
+            parameterInputs.appendChild(paramDiv);
+        });
+    }
+    
+    function collectParameterValues() {
+        const args = {};
+        const inputs = parameterInputs.querySelectorAll('input, select');
+        
+        inputs.forEach(input => {
+            const paramName = input.name;
+            let value;
+            
+            if (input.type === 'checkbox') {
+                value = input.checked;
+            } else if (input.type === 'number') {
+                value = input.value ? parseFloat(input.value) : undefined;
+            } else {
+                value = input.value || undefined;
+            }
+            
+            if (value !== undefined && value !== '') {
+                args[paramName] = value;
+            }
+        });
+        
+        return args;
+    }
+    
+    async function executeSelectedTool(toolName, args) {
+        const app = window.githubApp;
+        if (!app || !app.accessToken) {
+            alert('Please authenticate first');
+            return;
+        }
+        
+        executeBtn.textContent = 'Executing...';
+        executeBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/mcp/tools/call', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${app.accessToken}`
+                },
+                body: JSON.stringify({
+                    name: toolName,
+                    arguments: args
+                })
+            });
+            
+            const result = await response.json();
+            
+            // Show response
+            toolResponse.style.display = 'block';
+            responseContent.innerHTML = `
+                <div class="response-meta">
+                    <strong>Status:</strong> ${response.status} ${response.statusText}<br>
+                    <strong>Tool:</strong> ${toolName}<br>
+                    <strong>Arguments:</strong> ${JSON.stringify(args, null, 2)}<br>
+                    <strong>Timestamp:</strong> ${new Date().toISOString()}
+                </div>
+                <pre class="${response.ok ? 'success' : 'error'}">${JSON.stringify(result, null, 2)}</pre>
+            `;
+            
+        } catch (error) {
+            toolResponse.style.display = 'block';
+            responseContent.innerHTML = `
+                <div class="error-message">✗ Request failed: ${error.message}</div>
+            `;
+        } finally {
+            executeBtn.textContent = 'Execute Tool';
+            executeBtn.disabled = false;
+        }
+    }
+    
+    // Public method to populate tools
+    window.populateToolSelector = function(tools) {
+        availableTools = tools;
+        toolSelect.innerHTML = '<option value="">Choose a tool...</option>';
+        
+        tools.forEach(tool => {
+            const option = document.createElement('option');
+            option.value = tool.name;
+            option.textContent = `${tool.name} - ${tool.description}`;
+            toolSelect.appendChild(option);
+        });
+    };
+};
+
+// Store app instance globally for access from other functions
+document.addEventListener('DOMContentLoaded', () => {
+    window.githubApp = new GitHubOAuthApp();
+    window.initAdvancedToolTesting();
+    
+    // Override handleAuthSuccess to load MCP tools
+    const originalHandleAuthSuccess = window.githubApp.handleAuthSuccess;
+    window.githubApp.handleAuthSuccess = function(accessToken, user, scope) {
+        originalHandleAuthSuccess.call(this, accessToken, user, scope);
+        setTimeout(() => window.loadMCPTools(), 1000);
+    };
 });
